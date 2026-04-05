@@ -1,0 +1,12 @@
+{
+  "name": "fitvision-ai",
+  "version": "1.0.0",
+  "description": "AI Fitness Trainer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0"
+  }
+}
