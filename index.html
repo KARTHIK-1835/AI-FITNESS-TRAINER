@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered fitness trainer with real-time pose detection. Get instant feedback on your form, track reps, and achieve your fitness goals with BlazePose technology.">
+  <title>FitVision AI — Your Intelligent Fitness Trainer</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+</head>
+<body>
+
+<!-- DYNAMIC BACKGROUND -->
+<canvas id="canvas" style="position: fixed; z-index: -1; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden;"></canvas>
+
+<!-- LOADING SCREEN -->
+
+ 
+ <script>
+   // INLINE CRITICAL FALLBACK (Ensures app is NEVER stuck)
+   setTimeout(() => {
+     const loader = document.getElementById('loading-screen');
+     if (loader && !loader.classList.contains('fade-out')) {
+       console.warn("Inline fallback: Hiding stuck loader...");
+       loader.classList.add('fade-out');
+       setTimeout(() => loader.remove(), 800);
+     }
+   }, 6000);
+   
+   function forceHideLoader() {
+     const loader = document.getElementById('loading-screen');
+     if (loader) {
+       loader.classList.add('fade-out');
+       setTimeout(() => loader.remove(), 800);
+     }
+   }
+ </script>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-logo" onclick="navigateTo('landing')">
+      <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#lg)" stroke-width="2.5"/><path d="M10 20l4-8 4 8M12 16h4" stroke="url(#lg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs></svg>
+      FitVision AI
+    </div>
+    <ul class="nav-links" id="nav-links">
+      <li><a onclick="navigateTo('landing')" class="active" data-page="landing">Home</a></li>
+      <li><a onclick="navigateTo('exercises')" data-page="exercises">Exercises</a></li>
+      <li><a onclick="navigateTo('calendar')" data-page="calendar">Calendar</a></li>
+      <li><a onclick="navigateTo('dashboard')" data-page="dashboard">Dashboard</a></li>
+      <li><a onclick="navigateTo('nutrition')" data-page="nutrition">🥗 Nutrition</a></li>
+      <li><a onclick="navigateTo('exercises')" class="nav-cta">Start Workout 🔥</a></li>
+    </ul>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </div>
+</nav>
+
+<!-- ==================== LANDING PAGE ==================== -->
+<div class="page-view active" id="page-landing">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-particles" id="hero-particles"></div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">⚡ AI-Powered Real-Time Tracking</div>
+        <h1 class="hero-title">
+          <span class="hero-title-light">Your Personal</span>
+          <span class="hero-title-heavy"><span>AI Fitness Trainer</span></span>
+        </h1>
+        <p class="hero-subtitle">
+          Perfect Form. Every Rep. No Mirror Required.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="navigateTo('exercises')">
+            Start Training
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-lg" onclick="navigateTo('dashboard')">
+            View Dashboard
+          </button>
+        </div>
+        
+        <!-- Trust Bar Stats -->
+        <div class="trust-bar">
+          <div class="trust-item">
+            <h3 class="stat-counter" data-target="6">6</h3>
+            <p>Guided Exercises</p>
+          </div>
+          <div class="trust-item">
+            <h3><span class="stat-counter" data-target="99">99</span>%</h3>
+            <p>Form Accuracy</p>
+          </div>
+          <div class="trust-item">
+            <h3>Real-time</h3>
+            <p>Correction</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="hero-3d-container">
+          <div class="hero-figure" style="position: relative; width: 320px; height: 500px; z-index: 5;">
+            <img src="gym-overlay.png" alt="Athlete with AI tracking overlay" style="width: 100%; height: 100%; object-fit: cover; border-radius: 30px; box-shadow: 0 0 50px rgba(139, 92, 246, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);">
+          </div>
+          
+          <!-- Flying ghost cards breaking out of frame -->
+          <div class="hero-float-card card-1" style="background: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
+            <div class="card-value" style="color: #06b6d4;">✅ 99%</div>
+            <div class="card-label">Form Accuracy</div>
+          </div>
+          <div class="hero-float-card card-2" style="background: rgba(216, 180, 226, 0.05); border-color: rgba(216, 180, 226, 0.3);">
+            <div class="card-value" style="color: #D8B4E2;">🔥 15</div>
+            <div class="card-label">Perfect Reps</div>
+          </div>
+          <div class="hero-float-card card-3" style="background: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
+            <div class="card-value" style="color: #8b5cf6;">💪 Elite</div>
+            <div class="card-label">Fitness Level</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">✨ Features</span>
+        <h2 class="section-title">Everything You Need to Train Smarter</h2>
+        <p class="section-subtitle">Powered by cutting-edge AI pose detection technology</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card animate-in">
+          <div class="feature-icon">📷</div>
+          <h3>Real-Time Pose Detection</h3>
+          <p>BlazePose AI tracks 33 body landmarks in real-time through your webcam with millisecond accuracy.</p>
+        </div>
+        <div class="feature-card animate-in animate-delay-1">
+          <div class="feature-icon">🎯</div>
+          <h3>Form Accuracy Scoring</h3>
+          <p>Get instant feedback on your exercise form with color-coded accuracy scores — green, yellow, or red.</p>
+        </div>
+        <div class="feature-card animate-in animate-delay-2">
+          <div class="feature-icon">🔢</div>
+          <h3>Auto Rep & Set Counter</h3>
+          <p>Automatic repetition counting using joint angle state machines. Never lose count again.</p>
+        </div>
+        <div class="feature-card animate-in animate-delay-3">
+          <div class="feature-icon">🏃</div>
+          <h3>6 Guided Exercises</h3>
+          <p>Bicep Curls, Squats, Push-ups, Lunges, Jumping Jacks, and Shoulder Press — all with guided form.</p>
+        </div>
+        <div class="feature-card animate-in animate-delay-4">
+          <div class="feature-icon">📅</div>
+          <h3>Workout Calendar</h3>
+          <p>Schedule your weekly workouts, track completed sessions, and build consistency with streak tracking.</p>
+        </div>
+        <div class="feature-card animate-in animate-delay-5">
+          <div class="feature-icon">📊</div>
+          <h3>Advanced Analytics</h3>
+          <p>Track calories burned, workout duration, progress trends, and per-exercise breakdowns on your dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">🚀 How It Works</span>
+        <h2 class="section-title">Get Started in 3 Easy Steps</h2>
+        <p class="section-subtitle">No downloads, no equipment — just you and your camera</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card animate-in">
+          <div class="step-number">1</div>
+          <h3>Choose Your Exercise</h3>
+          <p>Browse 6 expertly-crafted exercises with difficulty levels and calorie estimates.</p>
+        </div>
+        <div class="step-card animate-in animate-delay-2">
+          <div class="step-number">2</div>
+          <h3>Enable Camera</h3>
+          <p>Allow camera access and our BlazePose AI will start tracking your body in real-time.</p>
+        </div>
+        <div class="step-card animate-in animate-delay-4">
+          <div class="step-number">3</div>
+          <h3>Train & Improve</h3>
+          <p>Get instant form feedback, auto rep counting, and performance analytics after each session.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CTA -->
+  <section class="section">
+    <div class="cta-section">
+      <h2>Ready to Transform Your Workouts?</h2>
+      <p>Start your AI-powered fitness journey today — it's completely free!</p>
+      <button class="btn btn-primary btn-lg" onclick="navigateTo('exercises')" style="position:relative;">
+        Start Training Now 🏋️
+      </button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo" style="margin-bottom:4px;">FitVision AI</div>
+          <p>AI-powered fitness trainer using computer vision to help you achieve perfect form and reach your fitness goals.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a onclick="navigateTo('exercises')">Exercises</a>
+          <a onclick="navigateTo('calendar')">Calendar</a>
+          <a onclick="navigateTo('dashboard')">Dashboard</a>
+        </div>
+        <div class="footer-col">
+          <h4>Exercises</h4>
+          <a href="#">Bicep Curls</a>
+          <a href="#">Squats</a>
+          <a href="#">Push-ups</a>
+          <a href="#">Lunges</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="#">FAQ</a>
+          <a href="#">Contact</a>
+          <a href="#">Privacy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 FitVision AI. Built with ❤️ and MediaPipe BlazePose. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ==================== EXERCISES PAGE ==================== -->
+<div class="page-view" id="page-exercises">
+  <div class="exercises-page">
+    <div class="container">
+      <div class="section-header" style="padding-top: 20px;">
+        <span class="section-tag">💪 Choose Your Workout</span>
+        <h2 class="section-title">Select an Exercise</h2>
+        <p class="section-subtitle">Pick an exercise and let AI guide your perfect form</p>
+      </div>
+      <div class="exercise-grid" id="exercise-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== WORKOUT MODE ==================== -->
+<div class="page-view" id="page-workout">
+  <div class="workout-view">
+    <div class="container">
+      <div class="workout-header">
+        <div>
+          <button class="btn btn-secondary btn-sm" onclick="stopWorkout()" id="btn-back-exercises">← Back</button>
+          <h2 id="workout-title" style="display:inline; margin-left:16px;">Exercise</h2>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <button class="btn btn-secondary btn-sm" onclick="VoiceEngine.toggle()" id="voice-toggle-btn">🔊 Voice: ON</button>
+          <button class="btn btn-secondary btn-sm" onclick="togglePause()" id="btn-pause">⏸ Pause</button>
+          <button class="btn btn-danger btn-sm" onclick="finishWorkout()">✅ Finish</button>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- ROW 1: Camera + Stats -->
+        <div class="workout-container">
+          <div class="workout-main">
+            <!-- Camera -->
+            <div class="camera-section" id="camera-section">
+              <video id="webcam-video" autoplay playsinline></video>
+              <canvas id="pose-canvas"></canvas>
+              <div class="camera-overlay">
+                <div class="camera-status" id="camera-status">
+                  <span class="dot"></span>
+                  <span>Initializing...</span>
+                </div>
+                <div class="accuracy-badge accuracy-good" id="accuracy-badge">
+                  <div class="value" id="accuracy-value">—</div>
+                  <div class="label">Accuracy</div>
+                </div>
+                <div class="form-feedback" id="form-feedback">
+                  Get in position to start your exercise...
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="workout-side">
+            <!-- Counter -->
+            <div class="workout-card">
+              <h3>📊 Progress</h3>
+              <div class="counter-display">
+                <div class="counter-box">
+                  <div class="number" id="rep-count">0</div>
+                  <div class="label">Reps</div>
+                </div>
+                <div class="counter-box">
+                  <div class="number" id="set-count">1</div>
+                  <div class="label">Set</div>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">SET PROGRESS</div>
+                <div class="set-progress" id="set-progress">
+                  <div class="set-dot active">1</div>
+                  <div class="set-dot">2</div>
+                  <div class="set-dot">3</div>
+                  <div class="set-dot">4</div>
+                </div>
+              </div>
+            </div>
+            <!-- Timer + Stats -->
+            <div class="workout-card">
+              <h3>⏱ Timer</h3>
+              <div class="timer-display" id="workout-timer">00:00</div>
+              <div class="workout-stats-strip" style="margin-top:16px;">
+                <div class="stat-mini">
+                  <div class="stat-val" id="live-calories">0</div>
+                  <div class="stat-lbl">kCal</div>
+                </div>
+                <div class="stat-mini">
+                  <div class="stat-val" id="live-avg-acc">—</div>
+                  <div class="stat-lbl">Avg Acc</div>
+                </div>
+                <div class="stat-mini">
+                  <div class="stat-val" id="live-total-reps">0</div>
+                  <div class="stat-lbl">Total Reps</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: Animation + Guide -->
+        <div class="workout-container">
+          <div class="workout-main">
+            <!-- Animation -->
+            <div class="workout-card" style="display: flex; flex-direction: column; align-items: center; height: 100%;">
+              <h3 style="align-self: flex-start;">🎬 Form Animation</h3>
+              <div class="exercise-animation-container" style="max-width: 400px; width: 100%; border: 1px solid var(--border-glass); padding: 20px; text-align: center; margin-top: auto; margin-bottom: auto;">
+                <div id="anim-canvas" style="width:100%; height:100%;"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="workout-side">
+            <!-- Guide -->
+            <div class="workout-card" style="height: 100%;">
+              <h3>📖 Exercise Guide</h3>
+              <div class="guide-content" id="guide-content">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SESSION SUMMARY ==================== -->
+<div class="page-view" id="page-summary">
+  <div class="summary-page">
+    <div class="container">
+      <div class="summary-card" id="summary-card">
+        <div class="summary-icon">🎉</div>
+        <h2>Workout Complete!</h2>
+        <p class="subtitle" id="summary-exercise-name">Great job on your session</p>
+        <div class="summary-stats">
+          <div class="summary-stat"><div class="val green" id="sum-reps">0</div><div class="lbl">Total Reps</div></div>
+          <div class="summary-stat"><div class="val blue" id="sum-sets">0</div><div class="lbl">Sets Done</div></div>
+          <div class="summary-stat"><div class="val orange" id="sum-cal">0</div><div class="lbl">Calories</div></div>
+          <div class="summary-stat"><div class="val pink" id="sum-time">00:00</div><div class="lbl">Duration</div></div>
+        </div>
+        <div class="summary-stat" style="margin-bottom:24px;">
+          <div class="val" id="sum-acc" style="color:var(--success);">0%</div>
+          <div class="lbl">Average Accuracy</div>
+        </div>
+        <div class="summary-actions">
+          <button class="btn btn-primary" onclick="navigateTo('exercises')">Train Again</button>
+          <button class="btn btn-secondary" onclick="navigateTo('dashboard')">View Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CALENDAR PAGE ==================== -->
+<div class="page-view" id="page-calendar">
+  <div class="calendar-page">
+    <div class="container">
+      <div class="section-header" style="padding-top:20px;">
+        <span class="section-tag">📅 Workout Calendar</span>
+        <h2 class="section-title">Plan Your Training</h2>
+        <p class="section-subtitle">Schedule workouts, track your consistency, and build habits</p>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="calendar-main">
+          <div class="calendar-nav">
+            <button class="btn btn-secondary btn-sm" onclick="calendarPrevMonth()">◀</button>
+            <h3 id="calendar-month-label">March 2026</h3>
+            <button class="btn btn-secondary btn-sm" onclick="calendarNextMonth()">▶</button>
+          </div>
+          <div class="calendar-grid-header">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <div class="calendar-sidebar">
+          <div class="schedule-form">
+            <h3>➕ Schedule Workout</h3>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="schedule-date">
+            </div>
+            <div class="form-group">
+              <label>Exercise</label>
+              <select id="schedule-exercise">
+                <option value="bicep-curls">Bicep Curls</option>
+                <option value="squats">Squats</option>
+                <option value="push-ups">Push-ups</option>
+                <option value="lunges">Lunges</option>
+                <option value="jumping-jacks">Jumping Jacks</option>
+                <option value="shoulder-press">Shoulder Press</option>
+                <option value="high-knees">High Knees</option>
+                <option value="calf-raises">Calf Raises</option>
+                <option value="glute-bridges">Glute Bridges</option>
+                <option value="vrksasana">Vrksasana (Tree Pose)</option>
+                <option value="baddha-kona-asana">Baddha-kona-asana</option>
+                <option value="sit-ups">Sit-ups</option>
+                <option value="side-lunges">Side Lunges</option>
+                <option value="good-mornings">Good Mornings</option>
+                <option value="arm-circles">Arm Circles</option>
+                <option value="leg-raises">Leg Raises</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" id="schedule-time" value="08:00">
+            </div>
+            <div class="form-group">
+              <label>Target Sets</label>
+              <input type="number" id="schedule-sets" value="3" min="1" max="10">
+            </div>
+            <button class="btn btn-primary" onclick="addScheduledWorkout()" style="width:100%;">Add to Calendar</button>
+          </div>
+          <div class="scheduled-list">
+            <h3>📋 Scheduled for <span id="selected-date-label">Today</span></h3>
+            <div id="scheduled-items">
+              <p style="color:var(--text-muted);font-size:0.85rem;">No workouts scheduled for this day</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DASHBOARD PAGE ==================== -->
+<div class="page-view" id="page-dashboard">
+  <div class="dashboard-page">
+    <div class="container">
+      <div class="dashboard-header">
+        <h2>📊 Performance Dashboard</h2>
+        <p>Track your progress and stay motivated</p>
+      </div>
+      <div class="stats-overview" id="stats-overview">
+        <div class="stat-card">
+          <div class="stat-icon">🏋️</div>
+          <div class="stat-value" id="dash-total-sessions">0</div>
+          <div class="stat-label">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="dash-total-cal">0</div>
+          <div class="stat-label">Calories Burned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏱</div>
+          <div class="stat-value" id="dash-total-time">0m</div>
+          <div class="stat-label">Time Spent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="dash-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="chart-card">
+          <h3>📈 Weekly Activity</h3>
+          <div class="chart-container">
+            <canvas id="weekly-chart"></canvas>
+          </div>
+        </div>
+        <div class="history-card">
+          <h3>🕐 Recent Sessions</h3>
+          <div id="session-history">
+            <p style="color:var(--text-muted);font-size:0.85rem;">No sessions recorded yet. Start training!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== NUTRITION PAGE ==================== -->
+<div class="page-view" id="page-nutrition">
+  <div class="nutrition-page">
+    <div class="container">
+      <div class="nutr-page-header">
+        <div class="nutr-header-content">
+          <span class="section-tag">🥗 Smart Nutrition</span>
+          <h2 class="section-title">Nutrition & Diet Planner</h2>
+          <p class="section-subtitle">Calculate your exact calorie needs, track meals & get a personalized 7-day Indian diet plan</p>
+        </div>
+      </div>
+      <div id="nutrition-content">
+        <!-- Dynamically populated by nutrition-ui.js -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script type="module" src="background.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="exercises.js?v=3"></script>
+<script type="module" src="pose-engine.js?v=3"></script>
+<script src="anime-3d.js?v=2"></script>
+<script src="calendar.js"></script>
+<script src="stats.js"></script>
+<script src="nutrition.js"></script>
+<script src="nutrition-ui.js"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>
