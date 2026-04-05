@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.static("public"));
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(8080, () => console.log("Server running"));
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
