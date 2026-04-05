@@ -1,3 +1,10 @@
+// server.js
+const express = require("express");
+const app = express();
+
+app.use(express.static("public"));
+
+app.listen(3000, () => console.log("Server running"));
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
